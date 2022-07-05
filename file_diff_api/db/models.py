@@ -1,4 +1,4 @@
-from database import Base
+from db.database import Base
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql.schema import ForeignKey
 # from sqlalchemy.orm import relationship
@@ -7,7 +7,7 @@ from sqlalchemy.sql.schema import ForeignKey
 class DbRecord(Base):
     __tablename__ = 'records'
     rec_id = Column(Integer, primary_key=True, index=True)
-    comp_id = Column(Integer)
+    comp_id = Column(Integer, ForeignKey('comparisons.id'))
     diff_type = Column(String)
     property_type = Column(String)
     value_left = Column(String)
@@ -20,4 +20,3 @@ class DbComparison(Base):
     left_name = Column(String)
     right_name = Column(String)
     comp_date = Column(DateTime)
-    rec_id = Column(Integer, ForeignKey('records.rec_id'))
