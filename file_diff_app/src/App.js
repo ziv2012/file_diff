@@ -1,5 +1,5 @@
 import { InboxOutlined } from "@ant-design/icons";
-import { message, Upload, Button } from "antd";
+import { message, Upload, Button, Table } from "antd";
 import "antd/dist/antd.css";
 import "./App.css";
 import React, { useState } from "react";
@@ -9,6 +9,8 @@ const BASE_URL = "http://localhost:8000/";
 const App = () => {
   const [loadings, setLoadings] = useState([]);
   const [files, setFiles] = useState([]);
+  const [result, setResult] = useState([]);
+
   const props = {
     name: "file",
     multiple: true,
@@ -63,26 +65,37 @@ const App = () => {
       .then((data) => {
         debugger;
         console.log(data);
+        setResult(data);
       });
   };
-  const enterLoading = (index) => {
-    setLoadings((prevLoadings) => {
-      const newLoadings = [...prevLoadings];
-      newLoadings[index] = true;
-      return newLoadings;
-    });
-    setTimeout(() => {
-      setLoadings((prevLoadings) => {
-        const newLoadings = [...prevLoadings];
-        newLoadings[index] = false;
-        return newLoadings;
-      });
-    }, 6000);
-  };
+
+  const columns = [
+    {
+      title: "id",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "diffType",
+      dataIndex: "diffType",
+      key: "diffType",
+    },
+    {
+      title: "leftVal",
+      dataIndex: "leftVal",
+      key: "leftVal",
+    },
+    {
+      title: "rightVal",
+      dataIndex: "rightVal",
+      key: "rightVal",
+    },
+  ];
   return (
     <>
-      <div className="upload_sections">
-        <section>
+      <section id="table">
+        {result.length > 0 && <Table dataSource={result} columns={columns} />}
+        <div className="upload_sections">
           <Dragger {...props}>
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
@@ -95,8 +108,7 @@ const App = () => {
               uploading company data or other band files
             </p>
           </Dragger>
-        </section>
-        <section>
+
           <Dragger {...props}>
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
@@ -109,15 +121,13 @@ const App = () => {
               uploading company data or other band files
             </p>
           </Dragger>
-        </section>
-        <Button
-          type="primary"
-          //  loading={loadings[0]}
-          onClick={onSubmit}
-        >
-          Click me!
-        </Button>
-      </div>
+        </div>
+        <div className="button">
+          <Button type="primary" onClick={onSubmit}>
+            Process
+          </Button>
+        </div>
+      </section>
     </>
   );
 };
