@@ -4,6 +4,8 @@ from sqlalchemy.orm.session import Session
 from typing import List
 import csv
 from io import StringIO
+from operator import itemgetter
+from datetime import datetime
 
 router = APIRouter(
     prefix='/upload',
@@ -38,9 +40,15 @@ async def upload(files: List[UploadFile] = File(...), db: Session = Depends(get_
     list2 = list(dict2.values())
 
     for rows in list1:
-        print(rows)
+        rows['date'] = datetime.strptime(
+            rows['date'], "%m/%d/%Y").strftime("%Y-%m-%d")
 
-    # pairs = zip(list1, list2)
+    for rows in list2:
+        rows['date'] = datetime.strptime(
+            rows['date'], "%m/%d/%Y").strftime("%Y-%m-%d")
 
-    # diff_keys = [[k for k in x if x[k] != y[k]] for x, y in pairs if x != y]
-    return list2
+    list1, list2 = [sorted(l, key=itemgetter('id'))
+                    for l in (list1, list2)]
+    pairs = zip(list1, list2)
+    diff_keys = [(x, y) for x, y in pairs if x != y]
+    return diff_keys
