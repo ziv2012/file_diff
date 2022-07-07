@@ -123,11 +123,6 @@ const App = () => {
     <>
       <div className="main">
         <section id="history">
-          {/* {comparisonHistory.map((comp) => (
-            <div key={comp.id}>
-              <label>{comp.date}</label>
-            </div>
-          ))} */}
           <List
             dataSource={comparisonHistory}
             renderItem={(item) => (
