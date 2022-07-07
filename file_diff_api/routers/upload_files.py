@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy import false, true
 from db.database import get_db
 from sqlalchemy.orm.session import Session
-from typing import List, Tuple
+from typing import List
 import csv
 from io import StringIO
 from operator import itemgetter
@@ -11,7 +11,9 @@ from datetime import datetime
 # from .schemas import CompBase, CompDisplay, TransactionBase, TransactionDisplay
 from db import db_comp, db_transaction
 from dataclasses import dataclass
-from enum import Enum
+from routers.schemas import CompBase
+
+
 router = APIRouter(
     prefix='/upload',
     tags=['upload']
@@ -21,9 +23,6 @@ router = APIRouter(
 class DiffType(str):
     ONLY_LEFT = "ONLY_LEFT"
     ONLY_RIGHT = "ONLY_RIGHT"
-    # AMOUNT = "AMOUNT"
-    # CURRENCY = "CURRENCY"
-    # DATE = "DATE"
 
 
 @dataclass
@@ -43,9 +42,8 @@ class DiffObj:
     value_right: str
 
 
-async def readCSV(file: UploadFile):
+def readCSV(contents: bytes):
     dict = defaultdict()
-    contents = await file.read()
     decoded = contents.decode()
     buffer = StringIO(decoded)
     csvReader = csv.DictReader(buffer)
@@ -53,6 +51,7 @@ async def readCSV(file: UploadFile):
         key = rows['id']
         dict[key] = rows
     buffer.close()
+    return dict
 
 
 def whatever(dict1: defaultdict, dict2: defaultdict):
@@ -71,34 +70,33 @@ def whatever(dict1: defaultdict, dict2: defaultdict):
                 return DiffType.ONLY_LEFT
 
 
+def createOutput(diff_keys: List[tuple]):
+    resultList = []
+    for rows in diff_keys:
+        left, right = rows
+        if left['id'] != right['id']:
+            resultList.append(
+                {"trans_id": left['id'], "diff_type": DiffType.ONLY_LEFT, "value_left": "", "value_right": ""})
+            resultList.append(
+                {"trans_id": right['id'], "diff_type": DiffType.ONLY_RIGHT, "value_left": "", "value_right": ""})
+        else:
+            mismatchkeys = {key for key in left.keys(
+            ) & right if left[key] != right[key]}
+            for x in mismatchkeys:
+                resultList.append({"trans_id": left['id'], "diff_type": x, "value_left": left.get(
+                    x), "value_right": right.get(x)})
+    return resultList
+
+
 @router.post('')
 async def upload(files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
-    input_file1 = files[0]
-    input_file2 = files[1]
+    # READ AND CONVERT BOTH FILES TO DICT
     dict1 = defaultdict()
-    contents = await input_file1.read()
-    decoded = contents.decode()
-    buffer = StringIO(decoded)
-    csvReader = csv.DictReader(buffer)
-    for rows in csvReader:
-        key = rows['id']
-        dict1[key] = rows
-    buffer.close()
     dict2 = defaultdict()
-    contents = await input_file2.read()
-    decoded = contents.decode()
-    buffer = StringIO(decoded)
-    csvReader = csv.DictReader(buffer)
-    for rows in csvReader:
-        key = rows['id']
-        dict2[key] = rows
-    buffer.close()
-
-    # dict1 = await readCSV(files[0])
-    # dict2 = await readCSV(files[1])
-    # print(dict2)
-
-    # whatever(dict1, dict2)
+    contents = await files[0].read()
+    dict1 = readCSV(contents)
+    contents = await files[1].read()
+    dict2 = readCSV(contents)
 
     list1 = list(dict1.values())
     list2 = list(dict2.values())
@@ -117,33 +115,25 @@ async def upload(files: List[UploadFile] = File(...), db: Session = Depends(get_
     diff_keys = [(x, y) for x, y in pairs if x != y]
 
     # CREATE OUTPUTLIST
-    resultList = []
-    for rows in diff_keys:
-        left, right = rows
-        if left['id'] != right['id']:
-            resultList.append(
-                {"trans_id": left['id'], "diff_type": DiffType.ONLY_LEFT, "value_left": "", "value_right": ""})
-            resultList.append(
-                {"trans_id": right['id'], "diff_type": DiffType.ONLY_RIGHT, "value_left": "", "value_right": ""})
-        else:
-            mismatchkeys = {key for key in left.keys(
-            ) & right if left[key] != right[key]}
-            for x in mismatchkeys:
-                resultList.append({"trans_id": left['id'], "diff_type": x, "value_left": left.get(
-                    x), "value_right": right.get(x)})
-                # resultList.append({"id": rows[0]['id'], "diffType": x, "leftVal": left.get(
-                #     x), "rightVal": right.get(x)})
+    resultList = createOutput(diff_keys)
+
+    # date = datetime.now
+    # check = CompBase(left_name="left",
+    #                  right_name="right",
+    #                  comp_date=date)
+
+    # print(check)
 
     class Comp(object):
         pass
 
     a = Comp()
 
-    a.left_name = input_file1.filename
-    a.right_name = input_file2.filename
+    a.left_name = files[0].filename
+    a.right_name = files[1].filename
     a.comp_date = datetime.now
     compId = db_comp.create_comp(db, a)
-    print(compId)
+    # print(compId)
 
     class Trans(object):
         pass
@@ -151,7 +141,7 @@ async def upload(files: List[UploadFile] = File(...), db: Session = Depends(get_
     b = Trans()
 
     for rec in resultList:
-        print(rec)
+        # print(rec)
         b.trans_id = rec['trans_id']
         b.comp_id = compId
         b.diff_type = rec['diff_type']
