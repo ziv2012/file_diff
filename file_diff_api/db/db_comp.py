@@ -14,14 +14,8 @@ def create_comp(db: Session, request: CompBase):
     db.add(new_comp)
     db.commit()
     db.refresh(new_comp)
-    return new_comp
+    return new_comp.id
 
 
 def get_all(db: Session):
     return db.query(DbComparison).all()
-# def get_user_by_username(db: Session,username: str):
-#     user = db.query(DbRecord).filter(DbRecord.username == username).first()
-#     if not user:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-#         detail = f'User with username {username} not found')
-#     return user

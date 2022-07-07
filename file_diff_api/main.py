@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from routers import record, comp, upload_files
+from routers import comp, transaction, upload_files
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-app.include_router(record.router)
+app.include_router(transaction.router)
 app.include_router(comp.router)
 app.include_router(upload_files.router)
 

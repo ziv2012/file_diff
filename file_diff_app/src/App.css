@@ -1,5 +1,13 @@
+#history {
+  width: 20rem;
+  max-width: 90%;
+  margin: 3rem auto;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
 #table {
-  width: 50rem;
+  width: 70rem;
   max-width: 90%;
   margin: 3rem auto;
   padding: 2rem;
@@ -7,10 +15,14 @@
   border-radius: 10px;
 }
 .upload_sections{
-  display:flex; flex-direction:row;
+  display:flex; flex-direction:row; justify-content: center;
 }
 .button{
   display: flex;
   justify-content: center;
   margin: 1rem auto; 
+}
+.main{
+  display: flex;
+  justify-content: center;
 }

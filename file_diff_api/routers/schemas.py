@@ -3,18 +3,19 @@ from datetime import datetime
 from typing import List
 
 
-class RecordBase(BaseModel):
+class TransactionBase(BaseModel):
     comp_id: int
+    trans_id: str
     diff_type: str
-    property_type: str
     value_left: str
     value_right: str
 
 
-class RecordDisplay(BaseModel):
+class TransactionDisplay(BaseModel):
+    id: int
+    trans_id: str
     comp_id: int
     diff_type: str
-    property_type: str
     value_left: str
     value_right: str
 
@@ -27,12 +28,18 @@ class CompBase(BaseModel):
     right_name: str
     comp_date: datetime
 
+    # def __init__(self, leftName, rightName, date):
+    #     self.left_name = leftName
+    #     self.right_name = rightName
+    #     self.comp_date = date
+
 
 class CompDisplay(BaseModel):
     id: int
     left_name: str
     right_name: str
     comp_date: datetime
+    transactions: List[TransactionDisplay]
 
     class Config():
         orm_mode = True

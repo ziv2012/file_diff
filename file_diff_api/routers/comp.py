@@ -12,10 +12,10 @@ router = APIRouter(
 
 
 @router.post('', response_model=CompDisplay)
-def create_record(request: CompBase, db: Session = Depends(get_db)):
+def create_comp(request: CompBase, db: Session = Depends(get_db)):
     return db_comp.create_comp(db, request)
 
 
 @router.get('/all', response_model=List[CompDisplay])
-def posts(db: Session = Depends(get_db)):
+def get_comp(db: Session = Depends(get_db)):
     return db_comp.get_all(db)
