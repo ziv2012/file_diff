@@ -139,7 +139,7 @@ async def upload(files: List[UploadFile] = File(...), db: Session = Depends(get_
         pass
 
     b = Trans()
-
+    new_list = []
     for rec in resultList:
         # print(rec)
         b.trans_id = rec['trans_id']
@@ -147,6 +147,7 @@ async def upload(files: List[UploadFile] = File(...), db: Session = Depends(get_
         b.diff_type = rec['diff_type']
         b.value_left = rec['value_left']
         b.value_right = rec['value_right']
-        recordId = db_transaction.create_transaction(db, b)
-
+        new_list.append(b)
+        # recordId = db_transaction.create_transaction(db, b)
+    res = db_transaction.bulk_insert(db, new_list)
     return resultList

@@ -24,3 +24,8 @@ def get_transaction(db: Session = Depends(get_db)):
 @router.get('/get/{comp_id}')
 def get_transaction(comp_id: int, db: Session = Depends(get_db)):
     return db_transaction.get_transactions(comp_id, db)
+
+
+@router.post('/BULK')
+def create_transaction(request: List[TransactionBase], db: Session = Depends(get_db)):
+    return db_transaction.bulk_insert(db, request)
