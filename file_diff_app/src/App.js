@@ -39,14 +39,14 @@ const App = () => {
     action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
     beforeUpload: (file) => {
       const isCSV = file.type === "text/csv";
-
+      debugger;
       if (!isCSV) {
         message.error(`${file.name} is not a csv file`);
       } else if (files.length >= 2) {
         message.error(`can't upload another file - only 2 are allowed`);
+        return false || Upload.LIST_IGNORE;
       } else {
         setFiles([...files, file]);
-        console.log(file);
       }
 
       return isCSV || Upload.LIST_IGNORE;
@@ -59,11 +59,16 @@ const App = () => {
       } else if (status === "error") {
         message.error(`${info.file.name} file upload failed.`);
       } else if (status === "removed") {
-        console.log(files);
+        removeFile(info.file.uid);
       }
     },
   };
-
+  const removeFile = (uid) => {
+    var array = files.filter(function (item) {
+      return item.uid !== uid;
+    });
+    setFiles(array);
+  };
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -130,6 +135,7 @@ const App = () => {
           ))} */}
           <List
             dataSource={comparisonHistory}
+            pagination={{ pageSize: 10 }}
             renderItem={(item) => (
               <List.Item>
                 <Typography.Text mark>[COMPARISON ID]</Typography.Text>
@@ -139,7 +145,13 @@ const App = () => {
           />
         </section>
         <section id="table">
-          {result.length > 0 && <Table dataSource={result} columns={columns} />}
+          {result.length > 0 && (
+            <Table
+              pagination={{ pageSize: 5 }}
+              dataSource={result}
+              columns={columns}
+            />
+          )}
           <div className="upload_sections">
             <Dragger {...props}>
               <p className="ant-upload-drag-icon">
