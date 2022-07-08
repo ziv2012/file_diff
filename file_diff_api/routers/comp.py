@@ -1,5 +1,5 @@
 from sqlalchemy.orm.session import Session
-from .schemas import CompBase, CompDisplay
+from .schemas import CompBase, CompDisplay, CreateComp
 from fastapi import APIRouter, Depends
 from db.database import get_db
 from db import db_comp
@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 @router.post('', response_model=CompDisplay)
-def create_comp(request: CompBase, db: Session = Depends(get_db)):
+def create_comp(request: CreateComp, db: Session = Depends(get_db)):
     return db_comp.create_comp(db, request)
 
 

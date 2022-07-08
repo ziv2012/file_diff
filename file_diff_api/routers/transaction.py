@@ -1,5 +1,5 @@
 from sqlalchemy.orm.session import Session
-from .schemas import TransactionBase, TransactionDisplay
+from .schemas import TransactionBase, TransactionDisplay, CreateTransaction
 from fastapi import APIRouter, Depends
 from db.database import get_db
 from db import db_transaction
@@ -11,9 +11,9 @@ router = APIRouter(
 )
 
 
-@router.post('', response_model=TransactionDisplay)
-def create_transaction(request: TransactionBase, db: Session = Depends(get_db)):
-    return db_transaction.create_transaction(db, request)
+@router.post('', response_model=TransactionBase)
+def create_transaction(trans: CreateTransaction, db: Session = Depends(get_db)):
+    return db_transaction.create_transaction(db, trans)
 
 
 @router.get('/all', response_model=List[TransactionDisplay])

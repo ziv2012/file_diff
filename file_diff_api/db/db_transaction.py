@@ -1,22 +1,16 @@
 from typing import List
 from fastapi import HTTPException, status
-from routers.schemas import TransactionBase
+from routers.schemas import TransactionBase, CreateTransaction, TransactionDisplay
 from sqlalchemy.orm.session import Session
 from .models import DbTransaction
 
 
-def create_transaction(db: Session, request: TransactionBase):
-    new_trans = DbTransaction(
-        comp_id=request.comp_id,
-        trans_id=request.trans_id,
-        diff_type=request.diff_type,
-        value_left=request.value_left,
-        value_right=request.value_right,
-    )
+def create_transaction(db: Session, request: CreateTransaction):
+    new_trans = DbTransaction(**request.dict())
     db.add(new_trans)
     db.commit()
     db.refresh(new_trans)
-    return request
+    return TransactionDisplay.from_orm(new_trans)
 
 
 def get_all(db: Session):

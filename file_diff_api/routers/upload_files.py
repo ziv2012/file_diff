@@ -8,10 +8,7 @@ import csv
 from io import StringIO
 from operator import itemgetter
 from datetime import datetime
-# from .schemas import CompBase, CompDisplay, TransactionBase, TransactionDisplay
 from db import db_comp, db_transaction
-from dataclasses import dataclass
-from routers.schemas import CompBase
 
 
 router = APIRouter(
@@ -25,21 +22,6 @@ class DiffType(str):
     ONLY_RIGHT = "ONLY_RIGHT"
 
 
-# @dataclass
-# class Transaction:
-#     id: str
-#     amount: int
-#     currency: str
-#     date: datetime
-
-
-# @dataclass
-# class DiffObj:
-#     id: str
-#     comp_id: int
-#     diff_type: DiffType
-#     value_left: str
-#     value_right: str
 class Comp(object):
     pass
 

@@ -4,7 +4,6 @@ import "antd/dist/antd.css";
 import "./App.css";
 import React, { useState, useEffect } from "react";
 const { Dragger } = Upload;
-const BASE_URL = "http://localhost:8000/";
 
 const columns = [
   {
@@ -79,7 +78,7 @@ const App = () => {
       method: "POST",
       body: formData,
     };
-    await fetch(BASE_URL + "upload", requestOptions)
+    await fetch(process.env.REACT_APP_API_URL + "upload", requestOptions)
       .then((response) => {
         if (response.ok) {
           return response.json();
@@ -98,7 +97,7 @@ const App = () => {
     setResult(transactionsHistory[id]);
   };
   useEffect(() => {
-    fetch(BASE_URL + "comp/all")
+    fetch(process.env.REACT_APP_API_URL + "comp/all")
       .then((response) => {
         const json = response.json();
         if (response.ok) {

@@ -1,11 +1,11 @@
 from datetime import datetime
 from fastapi import HTTPException, status
-from routers.schemas import CompBase
+from routers.schemas import CompBase, CreateComp
 from sqlalchemy.orm.session import Session
 from .models import DbComparison
 
 
-def create_comp(db: Session, request: CompBase):
+def create_comp(db: Session, request: CreateComp):
     new_comp = DbComparison(
         left_name=request.left_name,
         right_name=request.right_name,

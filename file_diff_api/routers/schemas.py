@@ -11,16 +11,15 @@ class TransactionBase(BaseModel):
     value_right: str
 
 
-class TransactionDisplay(BaseModel):
+class TransactionDisplay(TransactionBase):
     id: int
-    trans_id: str
-    comp_id: int
-    diff_type: str
-    value_left: str
-    value_right: str
 
     class Config():
         orm_mode = True
+
+
+class CreateTransaction(TransactionBase):
+    pass
 
 
 class CompBase(BaseModel):
@@ -28,18 +27,14 @@ class CompBase(BaseModel):
     right_name: str
     comp_date: datetime
 
-    # def __init__(self, leftName, rightName, date):
-    #     self.left_name = leftName
-    #     self.right_name = rightName
-    #     self.comp_date = date
 
-
-class CompDisplay(BaseModel):
+class CompDisplay(CompBase):
     id: int
-    left_name: str
-    right_name: str
-    comp_date: datetime
     transactions: List[TransactionDisplay]
 
     class Config():
         orm_mode = True
+
+
+class CreateComp(CompBase):
+    pass
