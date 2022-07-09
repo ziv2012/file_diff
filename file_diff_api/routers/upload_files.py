@@ -1,6 +1,5 @@
 from collections import defaultdict
 from fastapi import APIRouter, Depends, UploadFile, File
-from sqlalchemy import false, true
 from db.database import get_db
 from sqlalchemy.orm.session import Session
 from typing import List
@@ -9,6 +8,7 @@ from io import StringIO
 from operator import itemgetter
 from datetime import datetime
 from db import db_comp, db_transaction
+from routers.schemas import TransactionBase
 
 
 router = APIRouter(
@@ -23,10 +23,6 @@ class DiffType(str):
 
 
 class Comp(object):
-    pass
-
-
-class Trans(object):
     pass
 
 
@@ -91,23 +87,26 @@ async def upload(files: List[UploadFile] = File(...), db: Session = Depends(get_
 
     list1 = list(dict1.values())
     list2 = list(dict2.values())
-
+    # GET DISCREPANCIES BETWEEN THE FILES AND CREATE OUTPUT RESULT
     resultList = getDiscrepancies(list1, list2)
 
+    # CREATE NEW COMPARISON
     a = Comp()
     a.left_name = files[0].filename
     a.right_name = files[1].filename
     a.comp_date = datetime.now
     compId = db_comp.create_comp(db, a)
 
-    b = Trans()
+    # INSERT TRANSACTIONS TO DB
     new_list = []
     for rec in resultList:
-        b.trans_id = rec['trans_id']
-        b.comp_id = compId
-        b.diff_type = rec['diff_type']
-        b.value_left = rec['value_left']
-        b.value_right = rec['value_right']
+        b = TransactionBase(
+            trans_id=rec['trans_id'],
+            comp_id=compId,
+            diff_type=rec['diff_type'],
+            value_left=rec['value_left'],
+            value_right=rec['value_right'],
+        )
         new_list.append(b)
 
     res = db_transaction.bulk_insert(db, new_list)

@@ -5,18 +5,6 @@ from sqlalchemy.orm.session import Session
 from .models import DbTransaction
 
 
-def create_transaction(db: Session, request: CreateTransaction):
-    new_trans = DbTransaction(**request.dict())
-    db.add(new_trans)
-    db.commit()
-    db.refresh(new_trans)
-    return TransactionDisplay.from_orm(new_trans)
-
-
-def get_all(db: Session):
-    return db.query(DbTransaction).all()
-
-
 def get_transactions(comp_id: int, db: Session):
     return db.query(DbTransaction).filter(DbTransaction.comp_id == comp_id).all()
 
